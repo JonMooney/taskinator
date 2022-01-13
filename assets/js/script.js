@@ -5,6 +5,7 @@ var tasksToDoEl = document.querySelector("#tasks-to-do");
 var tasksInProgressEl = document.querySelector("#tasks-in-progress");
 var tasksCompletedEl = document.querySelector("#tasks-completed");
 var pageContentEl = document.querySelector("#page-content");
+var localData = false; //Do we have items to load from localStorage?
 
 var tasks = [];
 
@@ -54,7 +55,22 @@ var createTaskEl = function(taskDataObj) {
   var taskActionsEl = createTaskActions(taskIdCounter);
   listItemEl.appendChild(taskActionsEl);
 
-  tasksToDoEl.appendChild(listItemEl);
+  // If we have items in localStorage to bring in, put them in the correct column
+  // If not, put them in the "To Do" column by default
+  if(localData){
+    if(taskDataObj.status === "to do"){
+      listItemEl.querySelector("select[name='status-change']").selectedIndex = 0;
+      tasksToDoEl.appendChild(listItemEl);
+    }else if(taskDataObj.status === "in progress"){
+      listItemEl.querySelector("select[name='status-change']").selectedIndex = 1;
+      tasksInProgressEl.appendChild(listItemEl);
+    }else if(taskDataObj.status === "completed"){
+      listItemEl.querySelector("select[name='status-change']").selectedIndex = 2;
+      tasksCompletedEl.appendChild(listItemEl);
+    }
+  }else{
+    tasksToDoEl.appendChild(listItemEl);
+  }
 
   taskDataObj.id = taskIdCounter;
 
@@ -237,8 +253,10 @@ var loadTasks = function() {
   // loop through savedTasks array
   for (var i = 0; i < savedTasks.length; i++) {
     // pass each task object into the `createTaskEl()` function
+    localData = true;
     createTaskEl(savedTasks[i]);
   }
+  localData = false;
 }
 
 loadTasks();
